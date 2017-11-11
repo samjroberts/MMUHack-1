@@ -12,8 +12,9 @@ reverse_geocode_result = gmaps.reverse_geocode((40.714224, -73.961452))
 # Request directions via public transit
 now = datetime.now()
 APIresponse = gmaps.directions("Manchester Piccadily",
-                                     "Manchester Metropolitan university, uk",
-                                     mode="walking",departure_time=now)
+                               "Manchester Metropolitan university Business School, uk",
+                                     mode="walking",departure_time=now, 
+                                     alternatives="true")
 
 paths=[]
 
@@ -62,5 +63,7 @@ def decode_polyline(polyline_str):
 coordinates=decode_polyline(paths[0])[0]
 latitude= decode_polyline(paths[0])[1]
 longitude= decode_polyline(paths[0])[2]
-print(coordinates)
 
+for i in range(len(paths)):    
+    coordinates=decode_polyline(paths[i])[0]
+    print(coordinates,'\n')
