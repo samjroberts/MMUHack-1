@@ -3,19 +3,15 @@ from datetime import datetime
 
 gmaps = googlemaps.Client(key='AIzaSyDapVav9IuuP5Jjw3ZnDFBqRsFKXN_XIOw')
 
-# Geocoding an address
-geocode_result = gmaps.geocode('1600 Amphitheatre Parkway, Mountain View, CA')
+#recieve origin and destination parameters from sam
+origin="Manchester Piccadily"
+destination="Manchester Metropolitan university Business School, uk"
 
-# Look up an address with reverse geocoding
-reverse_geocode_result = gmaps.reverse_geocode((40.714224, -73.961452))
-
-# Request directions via public transit
+# Request directions
 now = datetime.now()
-APIresponse = gmaps.directions("Manchester Piccadily",
-                               "Manchester Metropolitan university Business School, uk",
+APIresponse = gmaps.directions(origin,destination,
                                      mode="walking",departure_time=now, 
                                      alternatives="true")
-
 paths=[]
 
 for routes in APIresponse:
@@ -64,6 +60,17 @@ coordinates=decode_polyline(paths[0])[0]
 latitude= decode_polyline(paths[0])[1]
 longitude= decode_polyline(paths[0])[2]
 
-for i in range(len(paths)):    
+for i in range(len(paths)):
+    print(i)    
     coordinates=decode_polyline(paths[i])[0]
-    print(coordinates,'\n')
+    #owen put your algorithm here...???
+    #output route i with lowest crime
+    
+
+    
+    
+    
+    
+    
+    
+    
