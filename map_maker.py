@@ -15,6 +15,7 @@ APIresponse = gmaps.directions("Manchester Piccadily",
                                "Manchester Metropolitan university Business School, uk",
                                      mode="walking",departure_time=now, 
                                      alternatives="true")
+
 paths=[]
 
 for routes in APIresponse:
@@ -66,11 +67,3 @@ longitude= decode_polyline(paths[0])[2]
 for i in range(len(paths)):    
     coordinates=decode_polyline(paths[i])[0]
     print(coordinates,'\n')
-
-    
-    
-    
-    
-    
-    
-    
