@@ -1,23 +1,39 @@
 import googlemaps
 from datetime import datetime
 
-gmaps = googlemaps.Client(key='AIzaSyDapVav9IuuP5Jjw3ZnDFBqRsFKXN_XIOw')
-
 #recieve origin and destination parameters from sam
-origin="Manchester Piccadily"
+origin="Manchester Piccadilly"
 destination="Manchester Metropolitan university Business School, uk"
 
-# Request directions
-now = datetime.now()
-APIresponse = gmaps.directions(origin,destination,
+#request directions of all paths and calls algorithm to find lowest crime path. 
+#then outputs polyline of lowest crime path 
+def get_polyline(origin,destination):
+    gmaps = googlemaps.Client(key='AIzaSyDapVav9IuuP5Jjw3ZnDFBqRsFKXN_XIOw')
+    now = datetime.now()
+    APIresponse = gmaps.directions(origin,destination,
                                      mode="walking",departure_time=now, 
                                      alternatives="true")
-paths=[]
+    paths=[]
 
-for routes in APIresponse:
-    #print(routes["overview_polyline"]['points'])
-    paths.append(routes["overview_polyline"]['points'])
-
+    for routes in APIresponse:
+        paths.append(routes["overview_polyline"]['points'])
+    
+    for i in range(len(paths)):   
+        coordinates=decode_polyline(paths[i])[0]
+        #latitude=decode_polyline(paths[i])[1]
+        #longitude=decode_polyline(paths[i])[2]
+        #print(coordinates)
+        
+        #owen put your algorithm function here...???
+        #return lowest_crime (value of i with lowest crime)
+        
+        #dummy variable
+        lowest_crime=0
+        
+    polyline=paths[lowest_crime]
+    return polyline
+    
+#decode polyline into coordinates 
 def decode_polyline(polyline_str):
     '''Pass a Google Maps encoded polyline string; returns list of lat/lon pairs'''
     index, lat, lng = 0, 0, 0
@@ -55,18 +71,6 @@ def decode_polyline(polyline_str):
         longitude.append(lng / 100000.0)
         
     return coordinates, latitude, longitude
-
-#coordinates=decode_polyline(paths[0])[0]
-#latitude= decode_polyline(paths[0])[1]
-#longitude= decode_polyline(paths[0])[2]
-
-for i in range(len(paths)):   
-    coordinates=decode_polyline(paths[i])[0]
-    #owen put your algorithm here...???
-    #return lowest_crime (value of i with lowest crime)
- 
-#Fake output
-lowest_crime=0
-
-chosen_route=paths[lowest_crime]
-print(chosen_route)  
+   
+polyline=get_polyline(origin, destination)
+print(polyline)
