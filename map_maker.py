@@ -56,21 +56,17 @@ def decode_polyline(polyline_str):
         
     return coordinates, latitude, longitude
 
-coordinates=decode_polyline(paths[0])[0]
-latitude= decode_polyline(paths[0])[1]
-longitude= decode_polyline(paths[0])[2]
+#coordinates=decode_polyline(paths[0])[0]
+#latitude= decode_polyline(paths[0])[1]
+#longitude= decode_polyline(paths[0])[2]
 
-for i in range(len(paths)):
-    print(i)    
+for i in range(len(paths)):   
     coordinates=decode_polyline(paths[i])[0]
     #owen put your algorithm here...???
-    #output route i with lowest crime
-    
+    #return lowest_crime (value of i with lowest crime)
+ 
+#Fake output
+lowest_crime=0
 
-    
-    
-    
-    
-    
-    
-    
+chosen_route=paths[lowest_crime]
+print(chosen_route)  
