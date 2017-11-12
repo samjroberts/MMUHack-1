@@ -3,6 +3,7 @@
 
 Thanks for checking out our repo! 
 
+
 ## The idea: a safer route home
 --------------------------------------------
 
@@ -12,6 +13,7 @@ run open source crime data through some an algorithm that will determine the
 statisically safest route home?
 
 You're welcome. 
+
 
 ## Using the SafeStride website
 --------------------------------------------
