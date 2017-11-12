@@ -1,0 +1,94 @@
+﻿{{left_sidebar_enabled,right_sidebar_enabled=False,('message' in globals())}}
+{{extend 'layout.html'}}
+<script src="https://maps.google.com/maps/api/js?libraries=geometry"></script>
+<script src="{{=URL('static','js/gmaps.js')}}"></script>
+<head>
+    <style>
+        #map {
+            height: 400px;
+            width: 100%;
+        }
+        #div.fieldSet{
+            width: 500px;
+            border: 1px solid black;
+            background-color: #A9A9A9;
+        }
+        #legend {
+            font-size: 20px;
+        }
+        #label.field {
+            text-align: right;
+            width: 100px;
+            float: left;
+            font-weight: bold;
+        }
+        #input.textbox {
+            width: 300px;
+            float: left;
+        }
+        #fieldset p {
+            clear: both;
+            padding: 5px;
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <h1>SafeSpace</h1>
+    <form method='post'/>
+        <div class="fieldSet"/>
+            <fieldset>
+                <legend>Get me Home Safely!</legend>
+                <p><label class='field' for='Origin: '/>Origin: <input type='text' name='locationA' value='{{=locationA}}'/></p>
+                <p><label class='field' for='Destination: '/>Destination: <input type='text' name='locationB' value='{{=locationB}}'/></p>
+                <input type='submit' value='Show Map!'/>
+            </fieldset>
+        </div>
+    </form>
+
+    <h3>
+        Origin: {{=locationA}}
+    </h3>
+    <h3>
+        Destination: {{=locationB}}
+    </h3>
+    <div id="map"></div>
+    <div id="map" style="height:400px;width:800px"></div>
+    <script>
+    $(document).ready(function(){
+      map = new GMaps({
+        div: '#map',
+        lat: {{=latMid}},
+        lng: {{=longMid}},
+        zoom: 14
+      });
+       map.addMarker({
+        lat: {{=latA}},
+        lng: {{=longA}},
+        title: 'Start',
+        infoWindow: {
+            content: '<p>{{=request.vars.search}}</p>'
+        }
+      });
+        map.addMarker({
+        lat: {{=latB}},
+        lng: {{=longB}},
+        title: 'Finish',
+        infoWindow: {
+            content: '<p>{{=request.vars.search}}</p>'
+        }
+      });
+      var decodedPath = {{=pathFromPolyline}};
+      for (x in decodedPath) {
+            x = {lat: x[0], long: x[1]};
+        }
+        map.drawPolyline({
+            path: decodedPath,
+            strokeColor: "#FF0000",
+            strokeOpacity: 1.0,
+            strokeWeight: 2,
+        });
+    });
+    </script>
+    {{pass}}
+</body>
