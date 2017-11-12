@@ -1,17 +1,120 @@
+﻿import map_maker_V2 as mm2
 import googlemaps
 from datetime import datetime
 import json
 import csv
 import datetime as dt
 import requests
-#from bs4 import BeautifulSoup as bs
 import numpy as np
-#import matplotlib.pyplot as plt
+from bs4 import BeautifulSoup as bs
+
 from scipy.interpolate import RectBivariateSpline
 
-#recieve origin and destination parameters from sam
-origin="M16 0DA"
-destination="M17 1PG"
+def index():
+    from gluon.tools import geocode
+    latA = 53.4774
+    longA = -2.2309
+    latB = 53.4710
+    longB = -2.2390
+    locationA = str('Manchester Piccadilly Station')
+    locationB = str('Manchester Metropolitan University Business School')
+    
+    if request.post_vars:
+        locationA = str(request.post_vars.locationA)
+        locationB = str(request.post_vars.locationB)
+        response.flash = T("Coordinates entered!")
+    
+    polylinefunc = get_polyline(locationA, locationB)
+    
+    latA = polylinefunc[1][0]
+    longA = polylinefunc[1][1]
+    latB = polylinefunc[2][0]
+    longB = polylinefunc[2][1]
+    latMid = (latA + latB)*0.5
+    longMid = (longA + longB)*0.5
+    
+    pathFromPolyline = polylinefunc[3]
+    return locals()
+
+# each degree of latitude is 69 miles
+def onedeglong(a):
+    eq = 69.172
+    return(np.cos((np.pi / 180)*a)*eq)
+
+def crime_area(start_lat,start_long,end_lat,end_long,dist):
+    start_max_lat1 = start_lat + (dist*1/69)
+    start_max_long1 = start_long + (dist*(1/onedeglong(start_lat)))
+    end_max_lat1 = end_lat + (dist*1/69)
+    end_max_long1 = end_long + (dist*(1/onedeglong(end_lat)))
+    start_max_lat2 = start_lat - (dist*1/69)
+    start_max_long2 = start_long - (dist*(1/onedeglong(start_lat)))
+    end_max_lat2 = end_lat - (dist*1/69)
+    end_max_long2 = end_long - (dist*(1/onedeglong(end_lat)))
+    
+    min_orig_lat = min(start_lat,end_lat)
+    min_orig_long = min(start_long,end_long)
+    max_orig_lat = max(start_lat,end_lat)
+    max_orig_long = max(start_long,end_long)
+    
+    lat_n = max(start_max_lat1,start_max_lat2,end_max_lat1,end_max_lat2)
+    lat_s = min(start_max_lat1,start_max_lat2,end_max_lat1,end_max_lat2)
+    long_w = min(start_max_long1,start_max_long2,end_max_long1,end_max_long2)
+    long_e = max(start_max_long1,start_max_long2,end_max_long1,end_max_long2)
+    
+    if start_lat > end_lat:
+        long_n = start_long
+    else:
+        long_n = end_long
+        
+    if start_lat < end_lat:
+        long_s = start_long
+    else:
+        long_s = end_long
+    
+    if start_long > end_long:
+        lat_e = start_lat
+    else:
+        lat_e = end_lat
+    
+    if start_long < end_long:
+        lat_w = start_lat
+    else:
+        lat_w = end_lat
+    
+    n = [lat_n, long_n]
+    s = [lat_s,long_s]
+    w = [lat_w,long_w]
+    e = [lat_e,long_e]
+    
+    lat_n = round(n[0],4)
+    long_n = round(n[1],4)
+    lat_s = round(s[0],4)
+    long_s = round(s[1],4)
+    lat_w = round(w[0],4)
+    long_w = round(w[1],4)
+    lat_e = round(e[0],4)
+    long_e = round(e[1],4)
+
+    date = dt.date.today()
+    
+    #possibly add month functionallity
+    date = str(date.year)+"-"+str(date.month)
+    
+    url = "https://data.police.uk/api/crimes-street/all-crime?poly=%s,%s:%s,%s:%s,%s:%s,%s&=%s"     %(str(lat_n),str(long_n),str(lat_s),str(long_s),str(lat_w),str(long_w),str(lat_e),str(long_e),date)
+
+    url_json = requests.get(url).json()
+
+    lats = []
+    longs = [] 
+
+    for i in range(len(url_json)):
+        lats.append(url_json[i]['location']['latitude'])
+        longs.append(url_json[i]['location']['longitude'])
+    
+    points = np.column_stack((lats,longs)) 
+    points = [[float(p[0]), float(p[1])] for p in points ]
+    #converts to cartesian
+    return cartesian(points)
 
 #get data around origin point
 def crime_coords(x,y):
@@ -38,8 +141,8 @@ def crime_coords(x,y):
     return cartesian(points)
 
 #get risk map around start point of path
-def get_risk_map(lat0,long0):
-    coords = crime_coords(lat0, long0)
+def get_risk_map(start_lat, start_long,end_lat,end_long,dist):
+    coords = crime_area(start_lat,start_long,end_lat,end_long,dist)
     risk_map = interpolate(coords)
     return risk_map
 
@@ -87,26 +190,33 @@ def get_polyline(origin,destination):
     gmaps = googlemaps.Client(key='AIzaSyDapVav9IuuP5Jjw3ZnDFBqRsFKXN_XIOw')
     now = datetime.now()
     APIresponse = gmaps.directions(origin,destination,
-                                     mode="walking",departure_time=now, 
+                                     mode="walking",departure_time=now,
                                      alternatives="true")
     paths=[]
     for routes in APIresponse:
         paths.append(routes["overview_polyline"]['points'])
+    
     start=decode_polyline(paths[0])[0][1]
-    risk_map = get_risk_map(start[0], start[1])
+    end=decode_polyline(paths[0])[0][-1]
+    dist=2
+    
+    risk_map = get_risk_map(start[0], start[1], end[0], end[1], dist)
     risk_values = []
+    
     for path in paths:
         coordinates=decode_polyline(path)[0]
         cart_path = cartesian(coordinates)
         risk_values.append(risk(cart_path, risk_map))
     #minimum risk value
     val, idx = min((val, idx) for (idx, val) in enumerate(risk_values))
-    polyline=paths[idx]
+
+    start=(coordinates[0][0],coordinates[0][1])
+    end=(coordinates[-1][0],coordinates[-1][1])
     
     path = []
     latitudes = decode_polyline(paths[idx])[1]
     longitudes = decode_polyline(paths[idx])[2]
-    
+
     i = 0;
     for x in latitudes:
         coord_array=[]
@@ -115,12 +225,11 @@ def get_polyline(origin,destination):
         path.append(coord_array)
         i+=1
     
-    
-    return polyline
-    
-#decode polyline into coordinates 
+    polyline=paths[idx]
+    return polyline, start, end, path
+
+#decode polyline into coordinates
 def decode_polyline(polyline_str):
-    '''Pass a Google Maps encoded polyline string; returns list of lat/lon pairs'''
     index, lat, lng = 0, 0, 0
     coordinates = []
     latitude=[]
@@ -154,8 +263,5 @@ def decode_polyline(polyline_str):
         coordinates.append((lat / 100000.0, lng / 100000.0))
         latitude.append(lat/ 100000.0)
         longitude.append(lng / 100000.0)
-        
+
     return coordinates, latitude, longitude
-   
-polyline=get_polyline(origin, destination)
-print(polyline)
