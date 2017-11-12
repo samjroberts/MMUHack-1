@@ -1,9 +1,9 @@
-#GreatUniHack '17 Project: SafeStride
+## GreatUniHack '17 Project: SafeStride
 --------------------------------------------
 
 Thanks for checking out our repo! 
 
-##The idea: a safer route home
+## The idea: a safer route home
 --------------------------------------------
 
 The idea is simple. Mapping applications give you the fastest route between A and B,
@@ -13,7 +13,7 @@ statisically safest route home?
 
 You're welcome. 
 
-##Using the SafeStride website
+## Using the SafeStride website
 --------------------------------------------
 
 - Navigate to: https://sroberts88962.pythonanywhere.com/MMUHack/default/index
