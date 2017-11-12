@@ -1,4 +1,3 @@
-
 # coding: utf-8
 
 # In[1]:
@@ -10,6 +9,11 @@ import requests
 from bs4 import BeautifulSoup as bs
 import numpy as np
 
+# each degree of latitude is 69 miles
+def onedeglong(a):
+    eq = 69.172
+    return(np.cos((np.pi / 180)*a)*eq)
+  
 def crime_area(start_lat,start_long,end_lat,end_long,dist):
     
     start_max_lat1 = start_lat + (dist*1/69)
@@ -85,4 +89,3 @@ def crime_area(start_lat,start_long,end_lat,end_long,dist):
     points = [[float(p[0]), float(p[1])] for p in points ]
     #converts to cartesian
     return cartesian(points)
-

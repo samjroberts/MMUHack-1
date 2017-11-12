@@ -69,4 +69,3 @@ for i in range(len(paths)):
 lowest_crime=0
 
 chosen_route=paths[lowest_crime]
-print(chosen_route)  
