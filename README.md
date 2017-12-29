@@ -48,6 +48,17 @@ return that to the user, visualising it on the map.
 ## The technical detail
 --------------------------------------------
 
+The website is written using Python 3.6 (with minor Javascript for front-end googlemaps and HTML for web 
+page templates). Makes use of the SciPy, Matplotlib and NumPy for statistics, and Django's HTTPrequests
+for access to relevant data.
+
+First, the two points given are used to calculate a rectangular area surrounding the points. Crime data
+for this area is determined by making an API call to https://data.police.uk/data/. This data comes back 
+in a raw csv format, so we process the latitude and longitude and generate a heatmap of probability. 
+Once this has occured, a second API call is made to google maps asking for a number of routes between the
+given points (saving us the trouble of having to path find). These routes are run through our statistical 
+methods and the safest of the generated routes is returned and presented.
+
 Currently the website is being hosted using pythonanywhere, an online service that makes use of Web2Py.
 This meant we oly needed to make edits to the view (default.py) and to the template (index.html), as the
 rest of the project dependencies were dealt with by application. However web2py has issues due to the 
